@@ -1,0 +1,34 @@
+name: Actualitzacio Clima Diaria
+
+on:
+  schedule:
+    # Formato Cron: Minuto Hora Día Mes Día_Semana
+    - cron: '59 23 * * *' 
+  workflow_dispatch: # Permite ejecutarlo manualmente para probarlo ahora
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repositori
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instal·lar dependencies
+        run: pip install -r requirements.txt
+
+      - name: Executar script del clima
+        run: python clima.py
+
+      - name: Guardar i pujar el fitxer JSON
+        # Este paso es vital: configura Git dentro del Runner para hacer push
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add *.json
+          git commit -m "Afegit dades climatiques del dia" || echo "No hay cambios para subir"
+          git push
